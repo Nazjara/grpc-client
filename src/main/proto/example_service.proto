@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option java_package = "com.nazjara";
+option java_multiple_files = true;
+
+service ExampleService {
+//  return reverted String
+  rpc singleRpc(Request) returns (Response) {}
+
+//  return list of characters for string
+  rpc serverSideStreamingRpc(Request) returns (stream Response) {}
+
+//  gather characters to a string, revert and return
+  rpc clientSideStreamingRpc(stream Request) returns (Response) {}
+
+// send list of strings, return list of reverted strings
+  rpc bidirectionalStreamingRpc(stream Request) returns (stream Response) {}
+}
+
+message Request {
+  string value = 1;
+}
+
+message Response {
+  string value = 1;
+}
