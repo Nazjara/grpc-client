@@ -5,24 +5,34 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
+@RestController
 @Slf4j
-public class GrpcClientApplication implements CommandLineRunner {
+public class GrpcClientApplication {
+
+    @Value("${SERVER_HOST}")
+    private String host;
+
+    @Value("${SERVER_PORT}")
+    private int port;
 
     public static void main(String[] args) {
         SpringApplication.run(GrpcClientApplication.class, args);
     }
 
-    @Override
-    public void run(String... args) throws Exception {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 8080)
+    @GetMapping(path = "/process", produces = MediaType.TEXT_PLAIN_VALUE)
+    public String processRequest() throws InterruptedException {
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext()
                 .build();
 
@@ -50,6 +60,8 @@ public class GrpcClientApplication implements CommandLineRunner {
         log.info("callBidirectionalStreamingRpc starting");
         callBidirectionalStreamingRpc(asyncStub);
         log.info("callBidirectionalStreamingRpc finished");
+
+        return "Request processed";
     }
 
     private void callSingleRpc(ExampleServiceGrpc.ExampleServiceBlockingStub blockingStub) {
